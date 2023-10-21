@@ -18,7 +18,7 @@ jobs:
       - name: provide node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 19
       - name: Build frontend
         id: build
         run: |
