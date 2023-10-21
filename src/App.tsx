@@ -122,7 +122,7 @@ function App() {
       </div>
       <div>
         <form onSubmit={(event) => { event.preventDefault(); reset(); }}>
-          <input ref={inputRef} type="text" onChange={evt => checkValue(evt.target.value)} disabled={isMemorizationPhase} />
+          <input ref={inputRef} type="text" pattern="[0-9]*" onChange={evt => checkValue(evt.target.value)} disabled={isMemorizationPhase} />
         </form>
       </div>
       <div>
