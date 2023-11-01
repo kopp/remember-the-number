@@ -43,7 +43,7 @@ function SuccessStory(props: SuccessStoryProps) {
 
   const thumb = lastResult.success ? THUMB_UP : THUMB_DOWN;
 
-  const explanation = lastResult.success ? <span/> : (
+  const explanation = lastResult.success ? <span /> : (
     <span>
       &nbsp;<s>{lastResult.numberGuessed}</s> {lastResult.numberToGuess}
     </span>
@@ -76,12 +76,16 @@ function App() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const reset = () => {
-    setCurrentNumber(makeRandom(numberOfDigits));
-    setTimeThisRoundMilliSeconds(- getMemorizeTimeMilliSeconds(numberOfDigits));
+  const clearText = () => {
     if (inputRef.current != null) {
       inputRef.current.value = "";
     }
+  }
+
+  const reset = () => {
+    setCurrentNumber(makeRandom(numberOfDigits));
+    setTimeThisRoundMilliSeconds(- getMemorizeTimeMilliSeconds(numberOfDigits));
+    clearText();
   }
 
   // initialize the values, this is executed only once
@@ -117,11 +121,9 @@ function App() {
 
   const isMemorizationPhase = timeThisRoundMilliSeconds <= 0;
 
-  // make sure that text input is in focus if it is not disabled
-  if (!isMemorizationPhase) {
-    if (document.activeElement != inputRef.current) {
-      inputRef.current?.focus();
-    }
+  // make sure that text input is in focus
+  if (document.activeElement != inputRef.current) {
+    inputRef.current?.focus();
   }
 
   return (
@@ -134,7 +136,17 @@ function App() {
       </div>
       <div>
         <form onSubmit={(event) => { event.preventDefault(); reset(); }}>
-          <input ref={inputRef} type="number" pattern="[0-9]*" onChange={evt => checkValue(evt.target.value)} disabled={isMemorizationPhase} />
+          <input ref={inputRef} type="number" pattern="[0-9]*" onChange={evt => {
+            if (isMemorizationPhase) {
+              // ignore input
+              // An alternative would be to disable the input in this case.
+              // Downside to that alternative is, that on mobile devices the
+              // keyboard will be removed if there is no input field.
+              clearText();
+            } else {
+              checkValue(evt.target.value);
+            }
+          }} />
         </form>
       </div>
       <div>
