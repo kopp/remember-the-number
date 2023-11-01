@@ -13,8 +13,11 @@ function makeRandom(numberOfDigits: number): number {
 
 interface Result {
   numberOfDigits: number,
+  numberToGuess: number,
+  numberGuessed: number,
   success: boolean,
   durationNeededMilliSeconds: number,
+
 };
 
 
@@ -40,10 +43,19 @@ function SuccessStory(props: SuccessStoryProps) {
 
   const thumb = lastResult.success ? THUMB_UP : THUMB_DOWN;
 
-  return (
+  const explanation = lastResult.success ? <span/> : (
     <span>
-      {thumb} ({(lastResult.durationNeededMilliSeconds / 1000).toFixed(1)})
+      &nbsp;<s>{lastResult.numberGuessed}</s> {lastResult.numberToGuess}
     </span>
+  );
+
+  return (
+    <>
+      <span>
+        {thumb} ({(lastResult.durationNeededMilliSeconds / 1000).toFixed(1)}s)
+      </span>
+      {explanation}
+    </>
   );
 }
 
@@ -94,7 +106,7 @@ function App() {
       const enteredValue = parseInt(value);
       const correct = enteredValue == currentNumber;
       const nextNumberOfDigits = correct ? numberOfDigits + 1 : Math.max(2, numberOfDigits - 1);
-      setResults([...results, { numberOfDigits: numberOfDigits, success: correct, durationNeededMilliSeconds: timeThisRoundMilliSeconds }]);
+      setResults([...results, { numberOfDigits: numberOfDigits, numberToGuess: currentNumber, numberGuessed: enteredValue, success: correct, durationNeededMilliSeconds: timeThisRoundMilliSeconds, }]);
       setNumberOfDigits(nextNumberOfDigits);
       clearInterval(timerId.current);
     }
@@ -106,7 +118,7 @@ function App() {
   const isMemorizationPhase = timeThisRoundMilliSeconds <= 0;
 
   // make sure that text input is in focus if it is not disabled
-  if (! isMemorizationPhase) {
+  if (!isMemorizationPhase) {
     if (document.activeElement != inputRef.current) {
       inputRef.current?.focus();
     }
