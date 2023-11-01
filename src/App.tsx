@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, CSSProperties } from 'react'
 import './App.css'
 
 
@@ -34,6 +34,63 @@ const THUMB_UP = "👍";
 const THUMB_DOWN = "👎";
 const CLOCK = "🕑"
 
+function colorizeLetters(letters: string, color: CSSProperties["color"], mask: boolean[]): JSX.Element {
+  if (letters.length != mask.length) {
+    console.error(`Unable to color ${letters} with maks ${mask} of different length.`);
+    return (<span>{letters}</span>);
+  }
+
+  // const colorizedLetters = letters.split("").map((char, idx) => { mask[idx] ? (<span style={{color: color}}>{char}</span>) : (<span>{char}</span>) });
+  const colorizedLetters = (() => {
+    const characters = letters.split("");
+    let colorized = new Array<JSX.Element>(characters.length);
+    for (let i = 0; i < characters.length; ++i) {
+      if (mask[i]) {
+        colorized[i] = (<span style={{ color: color }}>{characters[i]}</span>);
+      }
+      else {
+        colorized[i] = (<span>{characters[i]}</span>);
+      }
+    }
+    return colorized;
+  })();
+  console.log(colorizedLetters);
+  return (
+    <>
+      {colorizedLetters}
+    </>
+  );
+}
+
+function visualDiff(reference: number, toCheck: number): JSX.Element {
+  const ref = reference.toString();
+  const check = toCheck.toString();
+
+  if (ref.length != check.length) {
+    return (
+      <span>
+        <s>{ref}</s> {check}
+      </span>
+    );
+  }
+
+  const charDiffers = (() => {
+    let same = new Array<boolean>(ref.length);
+    for (let i = 0; i < ref.length; ++i) {
+      same[i] = ref[i] != check[i];
+    }
+    return same;
+  })();
+
+  return (
+    <>
+      {colorizeLetters(ref, "green", charDiffers)}&nbsp;&nbsp;
+      {colorizeLetters(check, "red", charDiffers)}
+    </>
+  )
+
+}
+
 function SuccessStory(props: SuccessStoryProps) {
   if (props.results.length == 0) {
     return (<span>{THINK_FACE}</span>);
@@ -45,7 +102,7 @@ function SuccessStory(props: SuccessStoryProps) {
 
   const explanation = lastResult.success ? <span /> : (
     <span>
-      &nbsp;<s>{lastResult.numberGuessed}</s> {lastResult.numberToGuess}
+      &nbsp;{visualDiff(lastResult.numberToGuess, lastResult.numberGuessed)}
     </span>
   );
 
